@@ -21,7 +21,7 @@ DNS client
 ```
 
 MikroTik firewall mangle rules use the populated address-lists to mark
-routing for VPN or direct paths.
+routing for DMZ or direct paths.
 
 ## Requirements
 
@@ -247,42 +247,42 @@ Test DNS resolution via the container:
 
 ```routeros
 :resolve server=172.16.0.2 domain-name=youtube.com
-/ip/firewall/address-list/print where list=vpn_proxy
+/ip/firewall/address-list/print where list=dmz_proxy
 ```
 
-### 12. Routing via VPN
+### 12. Routing via dmz
 
-At this point the container resolves domains and pushes IPs into `vpn_proxy`
-address-list. To actually route that traffic through a VPN gateway, add a
+At this point the container resolves domains and pushes IPs into `dmz_proxy`
+address-list. To actually route that traffic through a DMZ gateway, add a
 mangle rule and a routing table entry.
 
 ```routeros
-# Mark packets destined to vpn_proxy addresses (from LAN) with a routing mark
+# Mark packets destined to dmz_proxy addresses (from LAN) with a routing mark
 /ip/firewall/mangle/add \
     action=mark-routing \
     chain=prerouting \
-    dst-address-list=vpn_proxy \
+    dst-address-list=dmz_proxy \
     in-interface-list=lan \
-    new-routing-mark=vpn-route \
-    comment=dns-proxy:vpn-route
+    new-routing-mark=dmz-route \
+    comment=dns-proxy:dmz-route
 
-# Route marked packets through the VPN gateway
-# Replace "vpn" with your actual VPN interface or gateway IP
+# Route marked packets through the dmz gateway
+# Replace "dmz" with your actual DMZ interface or gateway IP
 /ip/route/add \
-    gateway=vpn \
-    routing-table=vpn-route
+    gateway=dmz \
+    routing-table=dmz-route
 ```
 
-> `gateway=vpn` is the name or IP of your VPN tunnel interface (e.g. `ovpn-client1`,
+> `gateway=dmz` is the name or IP of your DMZ tunnel interface (e.g. `odmz-client1`,
 > `wireguard1`, or an IP like `10.8.0.1`). Adjust to match your setup.
 
-After adding these rules, traffic to any IP in `vpn_proxy` from LAN clients
-will be routed through the VPN. Verify with:
+After adding these rules, traffic to any IP in `dmz_proxy` from LAN clients
+will be routed through the DMZ. Verify with:
 
 ```routeros
 /ip/firewall/mangle/print
-/ip/route/print where routing-table=vpn-route
-/ip/firewall/address-list/print where list=vpn_proxy
+/ip/route/print where routing-table=dmz-route
+/ip/firewall/address-list/print where list=dmz_proxy
 ```
 
 ## Configuration
@@ -315,7 +315,7 @@ Maps routing tags to MikroTik address-list names with TTL policy:
 ```json
 {
   "proxy": {
-    "list": "vpn_routes",
+    "list": "dmz_routes",
     "ttl": "336h",
     "refresh": "72h"
   }
