@@ -18,7 +18,7 @@
         "skip_fallback": true
       },
       {
-        "_comment": "Yandex DNS for Russian domains - go direct, no VPN needed",
+        "_comment": "Yandex DNS for Russian domains - go direct, no DMZ needed",
         "address": "77.88.8.8",
         "domains": [
           "geosite:category-ru",
@@ -38,7 +38,7 @@
         "query_strategy": "UseIPv4"
       },
       {
-        "_comment": "Everything else - route via VPN, use Cloudflare DoH",
+        "_comment": "Everything else - route via DMZ, use Cloudflare DoH",
         "address": "https://1.1.1.1/dns-query",
         "tag": "proxy",
         "query_strategy": "UseIP",
@@ -55,8 +55,8 @@
 
     "address_lists": {
       "proxy": {
-        "_comment": "IPs routed through VPN. TTL 14 days, refresh if < 3 days remain.",
-        "list": "vpn_routes",
+        "_comment": "IPs routed through DMZ. TTL 14 days, refresh if < 3 days remain.",
+        "list": "dmz_routes",
         "ttl": "336h",
         "refresh": "72h"
       },
